@@ -46,6 +46,7 @@ public class UserDaoImpl implements UserDao {
         });
     }
 
+    @SuppressWarnings("JpaQlInspection")
     @Override
     public List<User> findAll() {
         return execute("получение списка пользователей", session ->
