@@ -1,31 +1,23 @@
-import models.User;
+import exceptions.DaoException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import service.UserService;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import ui.ConsoleMenu;
+import utils.HibernateSessionFactoryUtil;
 
 public class Main {
-    public static void main(String[] args) {
-        UserService userService = new UserService();
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-        User user = new User("Ivan", "ivan@ya.ru", 25, Instant.now());
-        userService.saveUser(user);
-        Optional<User> optionalUser = userService.findUserById(user.getId());
-        User modUser = new User();
-        if (optionalUser.isPresent()) {
-            modUser = optionalUser.get();
+    public static void main(String[] args) {
+        log.info("Запуск user-service");
+        try {
+            HibernateSessionFactoryUtil.getSessionFactory();
+            new ConsoleMenu(new UserService()).run();
+        } catch (DaoException e) {
+            System.out.println("Не удалось запустить приложение: " + e.getMessage());
+        } finally {
+            HibernateSessionFactoryUtil.shutdown();
+            log.info("user-service остановлен");
         }
-        System.out.println(modUser);
-        modUser.setEmail("ivan2@ya.ru");
-        System.out.println(modUser);
-        userService.updateUser(modUser);
-        Optional<User> optionalUser2 = userService.findUserById(user.getId());
-        optionalUser2.ifPresent(System.out::println);
-        User user2 = new User("Petya", "petya@ya.ru", 15, Instant.now());
-        userService.saveUser(user2);
-        List<User> users = userService.findAllUser();
-        System.out.println(users);
-        userService.deleteUser(modUser);
     }
 }
