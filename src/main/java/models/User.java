@@ -7,7 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table (name = "users")
@@ -24,12 +24,12 @@ public class User {
     private int age;
 
     @Column(name = "created_at")
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     public User() {
     }
 
-    public User(String name, String email, int age, Instant createdAt) {
+    public User(String name, String email, int age, LocalDateTime createdAt) {
         this.name = name;
         this.email = email;
         this.age = age;
@@ -64,11 +64,11 @@ public class User {
         this.age = age;
     }
 
-    public Instant getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
