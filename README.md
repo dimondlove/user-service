@@ -63,3 +63,13 @@ mvn compile exec:java
 ## Логи
 
 Пишутся в консоль (INFO и выше) и в файл `logs/user-service.log` (с SQL-запросами).
+
+## Тесты
+
+```bash
+mvn test
+```
+
+- `service/UserServiceTest` и `utils/UserValidatorTest` — юнит-тесты (JUnit 5 + Mockito), Docker не нужен.
+- `dao/UserDaoImplIntegrationTest` — интеграционные тесты DAO на настоящем PostgreSQL в контейнере (Testcontainers).
+  **Docker должен быть запущен.** Тестовая БД поднимается и удаляется автоматически и не затрагивает БД из `docker-compose.yml`.

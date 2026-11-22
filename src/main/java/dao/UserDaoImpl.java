@@ -5,6 +5,7 @@ import jakarta.persistence.PersistenceException;
 import models.User;
 import org.hibernate.JDBCException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class UserDaoImpl implements UserDao {
 
@@ -22,6 +24,17 @@ public class UserDaoImpl implements UserDao {
 
     /** Код ошибки PostgreSQL: нарушение уникальности. */
     private static final String PG_UNIQUE_VIOLATION = "23505";
+
+    private final Supplier<SessionFactory> sessionFactorySupplier;
+
+    public UserDaoImpl() {
+        this.sessionFactorySupplier = HibernateSessionFactoryUtil::getSessionFactory;
+    }
+
+    /** Для тестов */
+    public UserDaoImpl(SessionFactory sessionFactory) {
+        this.sessionFactorySupplier = () -> sessionFactory;
+    }
 
     @Override
     public Optional<User> findById(Long id) {
@@ -78,7 +91,7 @@ public class UserDaoImpl implements UserDao {
 
     private <T> T execute(String action, Function<Session, T> work) {
         try {
-            return HibernateSessionFactoryUtil.getSessionFactory().fromTransaction(work);
+            return sessionFactorySupplier.get().fromSession(work);
         } catch (PersistenceException ex) {
             throw translateException(action, ex);
         }
@@ -86,7 +99,7 @@ public class UserDaoImpl implements UserDao {
 
     private void executeVoid(String action, Consumer<Session> work) {
         try {
-            HibernateSessionFactoryUtil.getSessionFactory().inTransaction(work);
+            sessionFactorySupplier.get().inTransaction(work);
         } catch (PersistenceException ex) {
             throw translateException(action, ex);
         }
